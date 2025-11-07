@@ -1,7 +1,7 @@
 let cities = [
-  {name: "San Jose", x: 290, y: 425, n: 8},
-  {name: "Los Angeles", x: 460, y: 610, n: 2},
-  {name: "San Diego", x: 517, y: 680, n: 5}
+  {name: "San Jose", x: 290, y: 445, n: 8},
+  {name: "Los Angeles", x: 460, y: 630, n: 2},
+  {name: "San Diego", x: 517, y: 700, n: 5}
 ];
 
 let img, table, myFont, selected = null;
@@ -22,7 +22,7 @@ function setup() {
 
 function draw() {
   background(242, 240, 235);
-  image(img, 410, 430, 535, 612);
+  image(img, 410, 450, 535, 612);
 
   let hovered = null;
   for (let c of cities)
@@ -106,3 +106,4 @@ function drawBox(x, y, i) {
   text(`Shelter: ${name}\nYear: ${year}\nSeason: ${season}\nFemale: ${female}`, bx + 10, by + 10);
   pop();
 }
+
