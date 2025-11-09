@@ -3,7 +3,7 @@ let cities = [
   {name: "Los Angeles", x: 460, y: 630, n: 2},
   {name: "San Diego", x: 517, y: 700, n: 5}
 ];
-
+let colorMap = {};
 let img, table, myFont, selected = null;
 let url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTDeNdpBx69ZrLBmJupfm6j2vniuh6ycCXqqfjIrevlV2hJB8-O3S73a38IYxphYa-EwagEISXEutzj/pub?gid=0&single=true&output=csv";
 
@@ -18,6 +18,16 @@ function setup() {
   canvas.position((windowWidth - width) / 2, 40); 
   imageMode(CENTER); 
   textAlign(CENTER);
+  
+  let names = [];
+  for (let r = 0; r < table.getRowCount(); r++) {
+    names.push(table.getRow(r).getString("shelter_name"));
+  }
+  let unique = [...new Set(names)];
+  for (let i = 0; i < unique.length; i++) {
+    const h = (i * 360 / unique.length) % 360; 
+    colorMap[unique[i]] = color(`hsl(${h}, 70%, 50%)`);
+  }
 }
 
 function draw() {
@@ -34,7 +44,7 @@ function draw() {
   strokeWeight(3); 
   fill(255);
   for (let c of cities)
-    ellipse(c.x, c.y, hovered === c ? 30 : 20);
+  ellipse(c.x, c.y, hovered === c ? 30 : 20);
 
   noStroke(); 
   fill(0); 
@@ -42,18 +52,31 @@ function draw() {
   textAlign(LEFT, CENTER);
   for (let c of cities) text(c.name, c.x - 150, c.y + 30);
 
-  if (hovered) {
-    for (let i = 0; i < hovered.n; i++) {
-      const cx = hovered.x + 30 + i * 20;
-      const cy = hovered.y;
-      const isSel = selected && selected.city === hovered.name && selected.index === i;
-      stroke(0); 
-      fill(isSel ? 0 : 255);
-      ellipse(cx, cy, 15, 15);
-      if (isSel) 
-        drawBox(cx, cy, i);
+if (hovered) {
+  for (let i = 0; i < hovered.n; i++) {
+    const cx = hovered.x + 30 + i * 20;
+    const cy = hovered.y;
+   
+    const row  = table.getRow(i); 
+    const name = row ? row.getString("shelter_name") : `${hovered.name}-${i+1}`;
+    const btnColor = colorFromName(name);
+
+    const isSel = selected && selected.city === hovered.name && selected.index === i;
+
+    stroke(0);
+    strokeWeight(isSel ? 3 : 1.5);
+    fill(btnColor);
+    ellipse(cx, cy, 15, 15);
+
+    if (isSel) {
+      noFill();
+      stroke(0);
+      strokeWeight(3);
+      ellipse(cx, cy, 19, 19);
+      drawBox(cx, cy, i);
     }
   }
+}
 
   fill(120, 81, 169); 
   noStroke(); 
@@ -84,7 +107,7 @@ function mousePressed() {
 
 function drawBox(x, y, i) {
   push();
-  const w = 240, h = 110;
+  const w = 240, h = 120;
   let bx = x + 15, by = y - h - 10;
   if (by < 20) by = y + 15;
 
@@ -101,9 +124,23 @@ function drawBox(x, y, i) {
 
   noStroke(); 
   fill(0); 
-  textAlign(LEFT, TOP); 
   textSize(17);
-  text(`Shelter: ${name}\nYear: ${year}\nSeason: ${season}\nFemale: ${female}`, bx + 10, by + 10);
+  textAlign(LEFT, TOP);
+  text(`Shelter: ${name}\nYear: ${year}\nSeason: ${season}`, bx + 10, by + 10);
+
+  textStyle(BOLD);
+  textSize(22);
+  fill(120, 81, 169);  
+  textAlign(CENTER, CENTER);
+  text(`Female: ${female}`, bx + w / 2, by + h - 25); 
+
   pop();
 }
+
+function colorFromName(name) {
+  if (colorMap[name]) return colorMap[name];   
+  const h = nameToHue(name);
+  return color(`hsl(${h}, 70%, 50%)`);
+}
+
 
